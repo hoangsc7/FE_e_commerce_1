@@ -5,7 +5,9 @@ import { useState, useEffect } from "react";
 // import { MoonIcon, SunIcon } from "@heroicons/react/24/outline";
 import Navigation from "./components/Navigation";
 import Product from "./customer/components/Product/Product";
-
+import ProductDetails from "./customer/components/ProductDetails/ProductDetails";
+import Cart from "./customer/components/Cart/Cart";
+import Checkout from "./customer/components/Checkout/Checkout";
 function App() {
   const [isNavVisible, setIsNavVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -59,7 +61,10 @@ function App() {
       </div>
       <div className="pt-20">
         {/* <HomePage /> */}
-        <Product />
+        {/* <Product /> */}
+        {/* <ProductDetails /> */}
+        {/* <Cart /> */}
+        <Checkout />
       </div>
       <Footer />
     </div>
