@@ -27,8 +27,8 @@ export default function Checkout() {
   };
 
   return (
-    <div className="px-10 lg:px-20">
-      <Box xs={12}>
+    <div className="px-10 lg:px-20 mt-5">
+      <Box>
         <Stepper activeStep={step}>
           {steps.map((label, index) => {
             const stepProps = {};
@@ -53,19 +53,16 @@ export default function Checkout() {
             <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
               <Button
                 color="inherit"
-                disabled={activeStep <= 0}
+                disabled={step <= 0}
                 onClick={handleBack}
                 sx={{ mr: 1 }}
               >
                 Back
               </Button>
               <Box sx={{ flex: "1 1 auto" }} />
-              <Button onClick={handleNext}>
-                {activeStep === steps.length - 1 ? "Finish" : "Next"}
-              </Button>
             </Box>
 
-            <div>
+            <div className="mt-2">
               {step == 2 ? <DeliveryAddressForm /> : <OrderSummary />}
             </div>
           </React.Fragment>

@@ -1,6 +1,5 @@
 import { Fragment, useState } from "react";
 import { Dialog, Popover, Tab, Transition } from "@headlessui/react";
-import { navigation } from "../config/navigation";
 import {
   Bars3Icon,
   MagnifyingGlassIcon,
@@ -10,6 +9,8 @@ import {
 
 import { Avatar, Button, Menu, MenuItem } from "@mui/material";
 import { deepPurple } from "@mui/material/colors";
+import { navigation } from "../config/navigation";
+import { useNavigate } from "react-router-dom";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -17,6 +18,8 @@ function classNames(...classes) {
 
 export default function Navigation() {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+
   const [openAuthModal, setOpenAuthModal] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const openUserMenu = Boolean(anchorEl);
@@ -37,7 +40,7 @@ export default function Navigation() {
   };
 
   const handleCategoryClick = (category, section, item, close) => {
-    // navigate(`/${category.id}/${section.id}/${item.id}`);
+    navigate(`/${category.id}/${section.id}/${item.id}`);
     close();
   };
 
@@ -244,11 +247,13 @@ export default function Navigation() {
               {/* Logo */}
               <div className="ml-4 flex lg:ml-0">
                 <span className="sr-only">Your Company</span>
-                <img
-                  src="https://res.cloudinary.com/ddkso1wxi/image/upload/v1675919455/Logo/Copy_of_Zosh_Academy_nblljp.png"
-                  alt="Shopwithzosh"
-                  className="h-8 w-8 mr-2"
-                />
+                <a href="/">
+                  <img
+                    src="https://res.cloudinary.com/ddkso1wxi/image/upload/v1675919455/Logo/Copy_of_Zosh_Academy_nblljp.png"
+                    alt="Shopwithzosh"
+                    className="h-8 w-8 mr-2"
+                  />
+                </a>
               </div>
 
               {/* Flyout menus */}
@@ -425,6 +430,13 @@ export default function Navigation() {
                             ? "Admin Dashboard"
                             : "My Orders"} */}
                           Profile
+                        </MenuItem>
+                        <MenuItem
+                          onClick={() => {
+                            navigate("/account/order"), handleCloseUserMenu();
+                          }}
+                        >
+                          My Order
                         </MenuItem>
                         <MenuItem>Logout</MenuItem>
                       </Menu>
