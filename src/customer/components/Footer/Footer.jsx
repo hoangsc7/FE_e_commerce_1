@@ -5,7 +5,7 @@ const Footer = () => {
   return (
     <div>
       <Grid
-        className="bg-black text-white text-center p-10 mt-10 flex justify-around"
+        className="bg-black text-white text-center p-10 mt-10 flex justify-around "
         container
         sx={{ textTransform: "none", bgcolor: "black", color: "white" }}
       >

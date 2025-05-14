@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, use, useEffect, useState } from "react";
 import { Dialog, Popover, Tab, Transition } from "@headlessui/react";
 import {
   Bars3Icon,
@@ -7,10 +7,20 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 
-import { Avatar, Button, Menu, MenuItem } from "@mui/material";
+import {
+  Avatar,
+  Button,
+  DialogContent,
+  DialogTitle,
+  Menu,
+  MenuItem,
+} from "@mui/material";
 import { deepPurple } from "@mui/material/colors";
 import { navigation } from "../config/navigation";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import AuthModal from "../customer/Auth/AuthModal";
+import { useDispatch, useSelector } from "react-redux";
+import { getUser, logout } from "../State/Auth/Action";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -24,6 +34,9 @@ export default function Navigation() {
   const [anchorEl, setAnchorEl] = useState(null);
   const openUserMenu = Boolean(anchorEl);
   const jwt = localStorage.getItem("jwt");
+  const { auth } = useSelector((store) => store);
+  const dispatch = useDispatch();
+  const location = useLocation();
 
   const handleUserClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -35,28 +48,46 @@ export default function Navigation() {
   const handleOpen = () => {
     setOpenAuthModal(true);
   };
+
   const handleClose = () => {
     setOpenAuthModal(false);
+    // navigate("/");
   };
 
   const handleCategoryClick = (category, section, item, close) => {
     navigate(`/${category.id}/${section.id}/${item.id}`);
     close();
   };
+  const reload = () => {
+    setTimeout(() => window.location.reload(), 2000);
+  };
 
-  //   useEffect(() => {
-  //     if (auth.user) {
-  //       handleClose();
-  //     }
-  //     if (location.pathname === "/login" || location.pathname === "/register") {
-  //       navigate(-1);
-  //     }
-  //   }, [auth.user]);
+  // const handleLogout = () => {
+  //   dispatch(logout());
+  //   handleCloseUserMenu();
+  //   navigate("/");
+  // };
 
-  //   const handleLogout = () => {
-  //     handleCloseUserMenu();
-  //     dispatch(logout());
-  //   };
+  useEffect(() => {
+    if (jwt) {
+      dispatch(getUser(jwt));
+    }
+  }, [jwt, auth.jwt]);
+
+  useEffect(() => {
+    if (auth.user) {
+      handleClose();
+    }
+    if (location.pathname === "/login" || location.pathname === "/register") {
+      navigate(-1);
+    }
+  }, [auth.user]);
+
+  const handleLogout = () => {
+    handleCloseUserMenu();
+    dispatch(logout());
+    // navigate("/");
+  };
   //   const handleMyOrderClick = () => {
   //     handleCloseUserMenu();
   //     auth.user?.role === "ROLE_ADMIN"
@@ -390,7 +421,7 @@ export default function Navigation() {
 
               <div className="ml-auto flex items-center">
                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                  {true ? (
+                  {auth.user ? (
                     <div>
                       <Avatar
                         className="text-white"
@@ -405,7 +436,7 @@ export default function Navigation() {
                           cursor: "pointer",
                         }}
                       >
-                        R
+                        {auth.user?.firstName[0].toUpperCase()}
                       </Avatar>
                       {/* <Button
                         id="basic-button"
@@ -438,12 +469,21 @@ export default function Navigation() {
                         >
                           My Order
                         </MenuItem>
-                        <MenuItem>Logout</MenuItem>
+                        <MenuItem
+                          onClick={() => {
+                            handleLogout();
+                          }}
+                        >
+                          Logout
+                        </MenuItem>
                       </Menu>
                     </div>
                   ) : (
                     <Button
-                      onClick={handleOpen}
+                      onClick={() => {
+                        handleOpen();
+                        navigate("/login");
+                      }}
                       className="text-sm font-medium text-gray-700 hover:text-gray-800"
                     >
                       Signin
@@ -485,6 +525,7 @@ export default function Navigation() {
           </div>
         </nav>
       </header>
+      <AuthModal open={openAuthModal} handleClose={handleClose} />
     </div>
   );
 }

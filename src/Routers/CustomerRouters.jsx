@@ -38,6 +38,10 @@ const CustomerRouters = () => {
       window.removeEventListener("scroll", controlNavbar);
     };
   }, [lastScrollY, isNavVisible]);
+  const handleClose = () => {
+    setOpenAuthModal(false);
+    navigate("/");
+  };
   return (
     <div>
       <div
@@ -48,10 +52,12 @@ const CustomerRouters = () => {
         <Navigation />
       </div>
       <Routes>
+        <Route path="/login" element={<HomePage />}></Route>
+        <Route path="/register" element={<HomePage />}></Route>
         <Route path="/" element={<HomePage />}></Route>
         <Route path="/cart" element={<Cart />}></Route>
         <Route
-          path="/:lavelOne/:lavelTwo/:lavelThre"
+          path="/:levelOne/:levelTwo/:levelThree"
           element={<Product />}
         ></Route>
         <Route path="/product/:productId" element={<ProductDetails />}></Route>
@@ -66,7 +72,9 @@ const CustomerRouters = () => {
         {/* <Order/> */}
         {/* <OrderTracker /> */}
       </Routes>
-      <div>
+      {/* <AuthModal open={openAuthModal} handleClose={handleClose} /> */}
+
+      <div className="">
         <Footer />
       </div>
     </div>

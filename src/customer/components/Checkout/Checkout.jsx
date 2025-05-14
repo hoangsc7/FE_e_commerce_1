@@ -49,7 +49,6 @@ export default function Checkout() {
           </React.Fragment>
         ) : (
           <React.Fragment>
-
             <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
               <Button
                 color="inherit"
@@ -64,6 +63,7 @@ export default function Checkout() {
 
             <div className="mt-2">
               {step == 2 ? <DeliveryAddressForm /> : <OrderSummary />}
+              {/* {step == 2 ? <div>hoang2</div> : <div>hoang3</div>} */}
             </div>
           </React.Fragment>
         )}

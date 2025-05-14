@@ -1,15 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StarIcon } from "@heroicons/react/20/solid";
 import { Radio, RadioGroup } from "@headlessui/react";
 import { Button, Rating, LinearProgress, Box, Grid } from "@mui/material";
 import ProductReviewCard from "./ProductReviewCard";
 import HomeSectionCard from "./../HomeSectionCard/HomeSectionCard";
 import { mens_kurta } from "../../../Data/mens_kurta";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { findProductById } from "../../../State/Product/Action";
+import { addItemToCart } from "../../../State/Cart/Action";
 
-const product = {
+const products = {
   name: "Basic Tee 6-Pack",
   price: "$192",
   href: "#",
@@ -64,14 +67,31 @@ function classNames(...classes) {
 }
 
 export default function ProductDetails() {
-  const [selectedColor, setSelectedColor] = useState(product.colors[0]);
-  const [selectedSize, setSelectedSize] = useState(product.sizes[2]);
+  const [selectedSize, setSelectedSize] = useState("");
   const navigate = useNavigate();
+  const params = useParams();
+  const dispatch = useDispatch();
+  const { product } = useSelector((store) => store);
+  console.log("component rendered, params:", params);
+
+  console.log("product", product);
 
   const handleAddToCart = () => {
+    const data = { productId: params.productId, size: selectedSize };
+    dispatch(addItemToCart(data));
     navigate("/cart");
   };
+  const sizeOrder = ["XS", "S", "M", "L", "XL", "XXL"];
 
+  const sortedSizes = [...(product.product?.sizes || [])].sort(
+    (a, b) => sizeOrder.indexOf(a.name) - sizeOrder.indexOf(b.name)
+  );
+
+  useEffect(() => {
+    const data = { productId: params.productId };
+    console.log("useEffect run, data:", data);
+    dispatch(findProductById(data));
+  }, [params.productId]);
   return (
     <div className=" bg-white lg:px-20 ">
       <div className="pt-6">
@@ -80,7 +100,7 @@ export default function ProductDetails() {
             role="list"
             className="mx-auto flex max-w-2xl items-center space-x-2 px-4 sm:px-6 lg:max-w-7xl lg:px-8"
           >
-            {product.breadcrumbs.map((breadcrumb) => (
+            {products.breadcrumbs.map((breadcrumb) => (
               <li key={breadcrumb.id}>
                 <div className="flex items-center">
                   <a
@@ -104,11 +124,11 @@ export default function ProductDetails() {
             ))}
             <li className="text-sm">
               <a
-                href={product.href}
+                href=""
                 aria-current="page"
                 className="font-medium text-gray-500 hover:text-gray-600"
               >
-                {product.name}
+                {product.product?.brand}
               </a>
             </li>
           </ol>
@@ -119,21 +139,26 @@ export default function ProductDetails() {
           <div className="flex flex-col items-center">
             <div className="overflow-hidden rounded-lg max-w-[30rem] max-h-[35rem]">
               <img
-                alt={product.images[0].alt}
-                src={product.images[0].src}
+                src={product.product?.imageUrl}
+                alt=""
                 className="w-full h-full object-cover object-center"
               />
             </div>
             <div className="flex flex-wrap space-x-5 justify-center">
-              {product.images.map((item) => (
+              {/* {product.product.map((item) => (
                 <div className="aspect-h-2 aspect-w-3  max-w-[5rem] max-h-[5rem] mt-4 rounded-lg overflow-hidden">
                   <img
-                    alt={item.alt}
-                    src={item.src}
+                    src={item.imageUrl}
                     className="h-full w-full object-center object-cover"
                   />
                 </div>
-              ))}
+              ))} */}
+              <div className="aspect-h-2 aspect-w-3  max-w-[5rem] max-h-[5rem] mt-4 rounded-lg overflow-hidden">
+                <img
+                  src={product.product?.imageUrl}
+                  className="h-full w-full object-center object-cover"
+                />
+              </div>
             </div>
           </div>
 
@@ -141,10 +166,11 @@ export default function ProductDetails() {
           <div className="lg:col-span-1 max-t-auto max-w-2xl px-4 pb-16 sm:px-6 lg:max-w-7xl lg:px-8 lg:pb-24 ">
             <div className="lg:col-span-2 ">
               <h1 className="text-lg lg:text-xl font-semibold text-gray-900">
-                {product.name}
+                {" "}
+                {product.product?.brand}
               </h1>
               <h1 className="text-lg lg:text-xl  text-gray-900 opacity-60 pt-1">
-                {product.name}
+                {product.product?.brand}
               </h1>
             </div>
 
@@ -152,9 +178,15 @@ export default function ProductDetails() {
             <div className="mt-4 lg:row-span-3 lg:mt-0">
               <h2 className="sr-only">Product information</h2>
               <div className="flex items-center space-x-5 text-lg lg:text-xl text-gray-900 mt-6 ">
-                <p className="font-semibold">199</p>
-                <p className="text-green-500 font-semibold">33% Off</p>
-                <p className="opacity-50 line-through">299</p>
+                <p className="font-semibold">
+                  $ {product.product?.discountedPrice}
+                </p>
+                <p className="opacity-50 line-through">
+                  $ {product.product?.price}
+                </p>
+                <p className="text-green-500 font-semibold">
+                  {product.product?.discountedPersent}% Off
+                </p>
               </div>
 
               {/* Reviews */}
@@ -181,20 +213,20 @@ export default function ProductDetails() {
                       onChange={setSelectedSize}
                       className="grid grid-cols-4 gap-4 sm:grid-cols-8 lg:grid-cols-4"
                     >
-                      {product.sizes.map((size) => (
+                      {sortedSizes.map((size) => (
                         <Radio
                           key={size.name}
-                          value={size}
-                          disabled={!size.inStock}
+                          value={size.name}
+                          disabled={!size.quantity}
                           className={classNames(
-                            size.inStock
+                            size.quantity
                               ? "cursor-pointer bg-white text-gray-900 shadow-xs"
                               : "cursor-not-allowed bg-gray-50 text-gray-200",
                             "group relative flex items-center justify-center rounded-md border px-4 py-3 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-hidden data-focus:ring-2 data-focus:ring-indigo-500 sm:flex-1"
                           )}
                         >
                           <span>{size.name}</span>
-                          {size.inStock ? (
+                          {size.quantity ? (
                             <span
                               aria-hidden="true"
                               className="pointer-events-none absolute -inset-px rounded-md border-2 border-transparent group-data-checked:border-indigo-500 group-data-focus:border"
@@ -249,7 +281,7 @@ export default function ProductDetails() {
 
                 <div className="space-y-6">
                   <p className="text-base text-gray-900">
-                    {product.description}
+                    {products.description}
                   </p>
                 </div>
               </div>
@@ -261,7 +293,7 @@ export default function ProductDetails() {
 
                 <div className="mt-4">
                   <ul role="list" className="list-disc space-y-2 pl-4 text-sm">
-                    {product.highlights.map((highlight) => (
+                    {products.highlights.map((highlight) => (
                       <li key={highlight} className="text-gray-400">
                         <span className="text-gray-600">{highlight}</span>
                       </li>
@@ -274,14 +306,14 @@ export default function ProductDetails() {
                 <h2 className="text-sm font-medium text-gray-900">Details</h2>
 
                 <div className="mt-4 space-y-6">
-                  <p className="text-sm text-gray-600">{product.details}</p>
+                  <p className="text-sm text-gray-600">{products.details}</p>
                 </div>
               </div>
             </div>
           </div>
         </section>
         {/* Rating and review */}
-        <section>
+        {/* <section>
           <h1 className="text-lg pb-4 font-semibold">
             Recent Reviews & Ratings
           </h1>
@@ -301,24 +333,6 @@ export default function ProductDetails() {
                   <Rating value={4.6} precision={0.5} readOnly></Rating>
                   <p className="text-sm opacity-60">593674 Ratings</p>
                 </div>
-                {/* <Box>
-                  <Grid container gap={2}>
-                    <Grid item xs={3}>
-                      <p>Excellent</p>
-                    </Grid>
-
-                    <Grid item xs={9}>
-                      <div className="w-full">
-                        <LinearProgress
-                          variant="determinate"
-                          value={50}
-                          color="success"
-                          sx={{ height: 8 }}
-                        />
-                      </div>
-                    </Grid>
-                  </Grid>
-                </Box> */}
                 <Box className="w-full mt-4">
                   <Grid
                     container
@@ -446,18 +460,18 @@ export default function ProductDetails() {
               </Grid>
             </Grid>
           </div>
-        </section>
+        </section> */}
 
         {/* Similer product */}
-        <section className="py-10 text-xl font-bold">
+        {/* <section className="py-10 text-xl font-bold">
           <h1>Similer Products</h1>
 
           <div className="pt-5 flex flex-wrap space-y-5">
             {mens_kurta.map((item) => (
-              <HomeSectionCard product={item} />
+              <HomeSectionCard products={item} />
             ))}
           </div>
-        </section>
+        </section> */}
       </div>
     </div>
   );
