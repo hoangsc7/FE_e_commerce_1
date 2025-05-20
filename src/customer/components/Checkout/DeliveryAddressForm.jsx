@@ -25,8 +25,13 @@ const DeliveryAddressForm = () => {
     };
 
     const orderData = { address, navigate };
-    dispatch(createOrder(orderData));
+    // dispatch(createOrder(orderData));
     console.log("Address:", orderData);
+  };
+  const handleUseAddress = (address) => {
+    const orderData = { address, navigate };
+    dispatch(createOrder(orderData));
+    console.log("Deliver existing address:", orderData);
   };
   return (
     <div>
@@ -43,6 +48,7 @@ const DeliveryAddressForm = () => {
                 sx={{ mt: 2, bgcolor: "rgb( 145 85 253)" }}
                 size="large"
                 variant="contained"
+                onClick={() => handleUseAddress(address)}
               >
                 Deliver here
               </Button>
